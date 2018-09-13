@@ -26,7 +26,7 @@ export class StoryService {
 
   getRequestBodyWithOffset(startAt:Number){
     return {
-      "jql": "project = air AND type = story and created > -300d and created < -20d",
+      "jql": "project = air AND type = story and labels in (B2B)",
       "startAt": startAt,
       "maxResults": 100,      
       "fields": [

@@ -15,7 +15,9 @@
     <!-- Status Column -->
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-      <td mat-cell *matCellDef="let subbug"> {{subbug.status}} </td>
+      <td mat-cell *matCellDef="let subbug" 
+                    matTooltip="{{subbug.statetransition}}" 
+                    [matTooltipShowDelay]="1000"> {{subbug.status}} </td>
     </ng-container>
   
     <!-- Assignee Column -->
@@ -50,10 +52,42 @@
         <td mat-cell *matCellDef="let subbug"> {{subbug.age}} </td>
     </ng-container>
 
+    <!-- Overall ReOpen Count Column -->
+    <ng-container matColumnDef="reopencount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ReOpen Count </th>
+      <td mat-cell *matCellDef="let subbug"> 
+                      {{subbug.reopencount}}
+                    </td>
+    </ng-container>
+
+    <!-- PreDevAnalysisTimeLine Column -->
+    <ng-container matColumnDef="predevanatimeline">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> PreDev Analysis Timeline </th>
+      <td mat-cell *matCellDef="let subbug"> {{subbug.predevanatimeline}} </td>
+    </ng-container>
+
+    <!-- Dev Lag Column -->
+    <ng-container matColumnDef="devlag">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Lag </th>
+        <td mat-cell *matCellDef="let subbug"> {{subbug.devlag}} </td>
+    </ng-container>
+
+    <!-- DevAnalysisTimeLine Column -->
+    <ng-container matColumnDef="devanatimeline">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Analysis Timeline </th>
+      <td mat-cell *matCellDef="let subbug"> {{subbug.devanatimeline}} </td>
+    </ng-container>
+
     <!-- DevTimeLine Column -->
     <ng-container matColumnDef="devtimeline">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Timeline </th>
         <td mat-cell *matCellDef="let subbug"> {{subbug.devtimeline}} </td>
+    </ng-container>
+
+    <!-- QA Lag Column -->
+    <ng-container matColumnDef="qalag">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> QA Lag </th>
+      <td mat-cell *matCellDef="let subbug"> {{subbug.qalag}} </td>
     </ng-container>
 
     <!-- QATimeLine Column -->

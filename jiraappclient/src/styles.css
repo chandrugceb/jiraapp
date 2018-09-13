@@ -1,2 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+.mat-header-cell {
+    background-color: rgb(174, 196, 179);
+    color:  rgb(1, 29, 1);
+    font-size-adjust: inherit;
+  }
+  .mat-tooltip {
+    text-align: center;
+    font-size: 1em;
+    padding: 5px 0;
+    border-radius: 100px;
+    font-weight: bold;
+ }

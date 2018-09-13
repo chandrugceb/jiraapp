@@ -19,7 +19,7 @@ export class SubbugComponent implements OnInit {
   private parentKey:string;  
   @ViewChild(MatSort) sort: MatSort;
   dataSource;
-  displayedColumns: string[] = ['key', 'summary', 'status', 'assignee', 'created', 'resolutiondate', 'age','devtimeline', 'qatimeline'];
+  displayedColumns: string[] = ['key', 'summary', 'status', 'assignee', 'created', 'resolutiondate', 'age','reopencount','predevanatimeline','devlag','devanatimeline','devtimeline','qalag', 'qatimeline'];
 
   constructor(private bottomSheetRef: MatBottomSheetRef<SubbugComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public data: any) {     
     this.parentKey = data.subbugs.parentKey;
@@ -35,7 +35,4 @@ export class SubbugComponent implements OnInit {
     this.bottomSheetRef.dismiss();
     event.preventDefault();
   }
-
-  isMySubbug
-
 }

@@ -27,7 +27,8 @@ import { MetricsService } from './metrics.service';
 export class AppComponent implements OnInit{ 
   storyReqCount:number=0;
   changelogReqCount:number=0; 
-  isStoryLoaded:boolean=false;
+  isStoryLoaded:boolean=false;  
+  private allKeys:string[]=[];
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   title = 'app';
@@ -36,9 +37,9 @@ export class AppComponent implements OnInit{
   private stories:Story[]=[]; 
   private subbugs:Subbug[]=[];
   private cls:Cl[]=[];
-  private subbugchangelogs:Changelog[]=[];
+  private changelogs:Changelog[]=[];
   private rawStories:any;
-  displayedColumns: string[] = ['key', 'summary', 'status', 'assignee', 'created', 'resolutiondate', 'age','storysubbugs'];
+  displayedColumns: string[] = ['key', 'summary', 'status', 'assignee', 'created', 'resolutiondate', 'age','storysubbugs','reopencount','predevanatimeline','devlag','devanatimeline','devtimeline','qalag', 'qatimeline'];
   pageSizeOptions: number[] = [5, 10, 25, 100];
 
   // MatPaginator Inputs
@@ -54,10 +55,14 @@ export class AppComponent implements OnInit{
               private _metricsService:MetricsService) { 
     this._storyService.getStory().subscribe(
       (res)=>{
-        console.log(res);
+       // console.log(res);
         this.parseStoriesRes(res);
       },
       (err)=>{});
+      this.dataSource = new MatTableDataSource(this.stories);      
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
+
   }
 
   ngOnInit() { 
@@ -77,7 +82,18 @@ export class AppComponent implements OnInit{
                         (newStory.resolutiondate.valueOf()-newStory.created.valueOf()):
                         ((new Date()).valueOf()-newStory.created.valueOf()))/1000/60/60/24),1);
       newStory.storysubbugs = [];
+      newStory.changelogs = [];
       newStory.storyactivesubbugcount=0;
+      newStory.issubbugloaded=false;
+      newStory.ischangelogsloaded=false;
+      newStory.predevanatimeline = 0;
+      newStory.devanatimeline = 0;
+      newStory.devlag = 0;
+      newStory.devtimeline = 0;
+      newStory.qalag = 0;
+      newStory.qatimeline = 0;
+      newStory.reopencount = 0;
+      newStory.statetransition = '';
       //console.log((new Date()).valueOf());
       this.stories.push(newStory);
     }
@@ -85,6 +101,10 @@ export class AppComponent implements OnInit{
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     this.ready=true;
+    if((res.startAt + res.maxResults) > res.total){
+      this.isStoryLoaded=true;
+      this.loadSubbugsForStories();
+    }
   }
 
   round(value, precision) {
@@ -92,6 +112,21 @@ export class AppComponent implements OnInit{
     return Math.round(value * multiplier) / multiplier;
   }
   applyFilter(filterValue: string) {
+    this.dataSource.filterPredicate = (data, filter) => {
+      if(data.summary.trim().toLowerCase().indexOf(filter) !== -1)
+        return true;
+      else if(data.key.trim().toLowerCase().indexOf(filter) !== -1)
+        return true;
+      else if(data.assignee != null)
+            {
+              if(data.assignee.trim().toLowerCase().indexOf(filter) !== -1)
+              return true;
+            }
+      if(data.status.trim().toLowerCase().indexOf(filter) !== -1)
+            return true;
+      else
+        return false;
+    };
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
@@ -105,14 +140,10 @@ export class AppComponent implements OnInit{
           this.parseStoriesRes(resnew);
         },
         (err)=>{});
-    }else{
-      this.isStoryLoaded=true;
-      this.loadSubbugsForStories();
     }
-
   }
   getRecord(row:any){
-    console.log(row);
+//    console.log(row);
   }
 
   loadSubbugsForStories(){
@@ -122,7 +153,7 @@ export class AppComponent implements OnInit{
         this.parseSubbugRes(res);
         this.storyReqCount--;
         if(this.storyReqCount==0){
-          console.log(this.subbugs);
+        //  console.log(this.subbugs);
           this.pushSubbugs();
         }
       },
@@ -145,9 +176,15 @@ export class AppComponent implements OnInit{
                         (newSubbug.resolutiondate.valueOf()-newSubbug.created.valueOf()):
                         ((new Date()).valueOf()-newSubbug.created.valueOf()))/1000/60/60/24),1);
       newSubbug.parent = subbug.fields.parent.key;
+      newSubbug.predevanatimeline = 0;
+      newSubbug.devanatimeline = 0;
+      newSubbug.devlag = 0;
       newSubbug.devtimeline = 0;
+      newSubbug.qalag = 0;
       newSubbug.qatimeline = 0;
       newSubbug.changelogs = [];
+      newSubbug.reopencount = 0;
+      newSubbug.statetransition = '';
       this.subbugs.push(newSubbug);
     }
     
@@ -159,7 +196,7 @@ export class AppComponent implements OnInit{
       for(let subbug of this.subbugs){
         if(story.key == subbug.parent){
           story.storysubbugs.push(subbug);
-          if(subbug.status != 'Done'){
+          if(subbug.status != 'Done' && subbug.status != 'Closed' ){
             story.storyactivesubbugcount++;
           }
         }
@@ -171,28 +208,34 @@ export class AppComponent implements OnInit{
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     this.ready=true;
-    this.loadChangelogsForSubbugs();
+    this.loadChangelogs();
   }
 
   openBottomSheet(parentKey:string): void {
-    console.log(this.subbugs.filter(e => e.parent == parentKey));
+   // console.log(this.subbugs.filter(e => e.parent == parentKey));
     this.bottomSheet.open(SubbugComponent, {
       data:{subbugs:{data:this.subbugs.filter(e => e.parent == parentKey), parentKey:parentKey}}
     });
   }
 
-  loadChangelogsForSubbugs(){
+  loadChangelogs(){
+    for(let story of this.stories){
+      this.allKeys.push(story.key);
+    }
     for(let subbug of this.subbugs){
+      this.allKeys.push(subbug.key)
+    }
+    for(let key of this.allKeys){
       this.changelogReqCount++;
-      this._subbugService.getChangelogWithOffset(subbug.key,0).subscribe((res)=>{
+      this._subbugService.getChangelogWithOffset(key,0).subscribe((res)=>{
         this.changelogReqCount--;
-        this.parseSubbugChangelogRes(res);
+        this.parseChangelogRes(res);
       },
       (err)=>{});
     }
   }
 
-  parseSubbugChangelogRes(res){
+  parseChangelogRes(res){
     let rawChangelogs = res.values;
     this.handleMoreChangeLogs(res);
     for(let value of rawChangelogs){
@@ -205,13 +248,13 @@ export class AppComponent implements OnInit{
           newChangelog.field = item.field;
           newChangelog.fromString = item.fromString;
           newChangelog.toString = item.toString;
-          this.subbugchangelogs.push(newChangelog);
+          this.changelogs.push(newChangelog);
         }
       }
     }
     if(this.changelogReqCount==0){
-      console.log(this.subbugchangelogs);
-      this.pushSubbugChangeLogs();
+    //  console.log(this.changelogs);
+      this.pushChangeLogs();
     }
   }
 
@@ -229,32 +272,54 @@ export class AppComponent implements OnInit{
       this._subbugService.getChangelogWithOffset(this.getKeyFromUrl(res.self),(res.startAt + res.maxResults)).subscribe(
         (resnew)=>{
           this.changelogReqCount--;
-          this.parseSubbugChangelogRes(resnew);          
+          this.parseChangelogRes(resnew);          
         },
         (err)=>{});
     }else{
     }
   }
-  pushSubbugChangeLogs(){
-    let newStories:Story[]=[];
+  pushChangeLogs(){
+    let newStories:Story[]=[];    
+    this.generateCl();
     for(let story of this.stories){
       story.storysubbugs=[];
+      for(let changelog of this.changelogs){
+        if(story.key == changelog.key){
+          story.changelogs.push(changelog);
+        }
+      }
+      story.ischangelogsloaded=true;
+      story.storyactivesubbugcount=0; 
       for(let subbug of this.subbugs){
         if(story.key == subbug.parent){
           subbug.changelogs=[];
-          for(let changelog of this.subbugchangelogs){
+          for(let changelog of this.changelogs){
             if(subbug.key == changelog.key){
               subbug.changelogs.push(changelog);
             }
-          }          
-          subbug.devtimeline = this._metricsService.getDevTimeLine(subbug.changelogs);
-          subbug.qatimeline = this._metricsService.getQATimeLine(subbug.changelogs);
+          }   
+          subbug.predevanatimeline = this.round(this._metricsService.getPreDevAnalysisTimeLine(subbug.changelogs),2);
+          subbug.devanatimeline = this.round(this._metricsService.getDevAnalysisTimeLine(subbug.changelogs),2);    
+          subbug.devtimeline = this.round(this._metricsService.getDevTimeLine(subbug.changelogs),2);
+          subbug.qatimeline = this.round(this._metricsService.getQATimeLine(subbug.changelogs),2);
+          subbug.devlag = this.round(this._metricsService.getDevLag(subbug.changelogs),2);
+          subbug.qalag = this.round(this._metricsService.getQALag(subbug.changelogs),2);
+          subbug.reopencount = this._metricsService.getReopenCount(subbug.changelogs);
+          subbug.statetransition = this.getStateTransitionSummary(subbug.key);
           story.storysubbugs.push(subbug);
-          if(subbug.status != 'Done'){
+          if(subbug.status != 'Done' && subbug.status != 'Closed' ){
             story.storyactivesubbugcount++;
           }
         }
       }
+      story.predevanatimeline = this.round(this._metricsService.getOverallPreDevAnalysisTimeLine(story),2);
+      story.devanatimeline = this.round(this._metricsService.getOverallDevAnalysisTimeLine(story),2);    
+      story.devtimeline = this.round(this._metricsService.getOverallDevTimeLine(story),2);
+      story.qatimeline = this.round(this._metricsService.getQATimeLine(story.changelogs),2); //QA's story level time is already overall qa timeline
+      story.devlag = this.round(this._metricsService.getOverallDevLag(story),2);
+      story.qalag = this.round(this._metricsService.getOverallQALag(story),2);
+      story.reopencount = this._metricsService.getOverallReopenCount(story);
+      story.statetransition = this.getStateTransitionSummary(story.key);
       story.issubbugloaded=true;
       newStories.push(story);
     }
@@ -262,21 +327,20 @@ export class AppComponent implements OnInit{
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     this.ready=true;
-    this.generateCl();
   }
 
   generateCl(){
     let key:string='';
     let stateTransition:string='';
-    for(let subbug of this.subbugs){
-      key = subbug.key;
+    for(let allKey of this.allKeys){
+      key = allKey;
       stateTransition = '';
-      for(let changelog of this.subbugchangelogs){
-        if(subbug.key == changelog.key){
+      for(let changelog of this.changelogs){
+        if(allKey == changelog.key){
           if(stateTransition.length>0){
-            stateTransition = stateTransition + " -> " + changelog.toString;
+            stateTransition = stateTransition + " ► " + changelog.toString;
           }else{
-            stateTransition = changelog.fromString + " -> " + changelog.toString;
+            stateTransition = changelog.fromString + " ► " + changelog.toString;
           }
         }
       }
@@ -285,8 +349,19 @@ export class AppComponent implements OnInit{
       cl.stateTransition=stateTransition;
       this.cls.push(cl);
     }
-    
-    console.log(this.cls);
+  }
+  
+  getStateTransitionSummary(key:string){
+    for(let cl of this.cls){
+      if(cl.key==key){
+        if(cl.stateTransition.length > 0)
+        {
+          return cl.stateTransition;
+        }
+        return 'No State Changes Observed';
+      }
+    }
+    return 'No State Changes Observed';
   }
 
 }

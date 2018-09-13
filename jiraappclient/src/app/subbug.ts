@@ -10,6 +10,12 @@ export class Subbug {
     age:number;
     parent:string;
     changelogs:Changelog[];
-    devtimeline:number;    
+    predevanatimeline:number;
+    devlag:number;
+    devanatimeline:number;
+    devtimeline:number;
+    qalag:number;    
     qatimeline:number;
+    reopencount:number;
+    statetransition:string;
 }

@@ -1,0 +1,9 @@
+.mat-header-cell {
+    background-color: rgb(240, 171, 171);
+    color:  rgb(32, 0, 0);
+    font-size-adjust: inherit;
+  }
+
+  .mat-row:hover {
+    background-color: rgb(238, 209, 209);;
+  }

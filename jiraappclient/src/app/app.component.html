@@ -4,11 +4,7 @@
   </mat-form-field>
 </div>
 
-<mat-paginator [length]="length"
-              [pageSize]="pageSize"
-              [pageSizeOptions]="pageSizeOptions"
-              (page)="pageEvent = $event">
-</mat-paginator>
+
 
 <mat-progress-bar *ngIf="!isStoryLoaded" mode="indeterminate"></mat-progress-bar>
 <mat-progress-bar *ngIf="!(storyReqCount==0)" mode="buffer"></mat-progress-bar>
@@ -29,7 +25,9 @@
     <!-- Status Column -->
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-      <td mat-cell *matCellDef="let story"> {{story.status}} </td>
+      <td mat-cell *matCellDef="let story"
+                  matTooltip="{{story.statetransition}}" 
+                  [matTooltipShowDelay]="1000"> {{story.status}} </td>
     </ng-container>
   
     <!-- Assignee Column -->
@@ -71,49 +69,59 @@
                         {{story.storyactivesubbugcount}}/{{story.storysubbugs.length}}
                       </td>
     </ng-container>
+
+    <!-- Overall ReOpen Count Column -->
+    <ng-container matColumnDef="reopencount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ReOpen Count </th>
+      <td mat-cell *matCellDef="let story"> 
+                      {{story.reopencount}}
+                    </td>
+    </ng-container>
+
+    <!-- PreDevAnalysisTimeLine Column -->
+    <ng-container matColumnDef="predevanatimeline">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> PreDev Analysis Timeline </th>
+      <td mat-cell *matCellDef="let story"> {{story.predevanatimeline}} </td>
+    </ng-container>
+
+    <!-- Dev Lag Column -->
+    <ng-container matColumnDef="devlag">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Lag </th>
+        <td mat-cell *matCellDef="let story"> {{story.devlag}} </td>
+    </ng-container>
+
+    <!-- DevAnalysisTimeLine Column -->
+    <ng-container matColumnDef="devanatimeline">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Analysis Timeline </th>
+      <td mat-cell *matCellDef="let story"> {{story.devanatimeline}} </td>
+    </ng-container>
+
+    <!-- DevTimeLine Column -->
+    <ng-container matColumnDef="devtimeline">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Timeline </th>
+        <td mat-cell *matCellDef="let story"> {{story.devtimeline}} </td>
+    </ng-container>
+
+    <!-- QA Lag Column -->
+    <ng-container matColumnDef="qalag">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> QA Lag </th>
+      <td mat-cell *matCellDef="let story"> {{story.qalag}} </td>
+    </ng-container>
+
+    <!-- QATimeLine Column -->
+    <ng-container matColumnDef="qatimeline">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> QA Timeline </th>
+        <td mat-cell *matCellDef="let story"> {{story.qatimeline}} </td>
+    </ng-container>
   
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky : true">      
     </tr>    
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openBottomSheet(row.key)"></tr>
-  </table>
-  <table class="table table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th scope="col">key</th>
-          <th scope="col">created</th>
-          <th scope="col">field</th>
-          <th scope="col">fromString</th>        
-          <th scope="col">toString</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let subbugchangelog of subbugchangelogs" >
-                <td>{{subbugchangelog.key}}</td>
-                <td>{{subbugchangelog.created}}</td>
-                <td>{{subbugchangelog.field}}</td>
-                <td>{{subbugchangelog.fromString}}</td>          
-                <td>{{subbugchangelog.toString}}</td>
-          </tr>      
-      </tbody>
-  </table>
-  
-  <br>
-
-  <table class="table table-striped">
-      <thead class="thead-light">
-        <tr>
-          <th scope="col">key</th>
-          <th scope="col">stateTransition</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let cl of cls" >
-                <td>{{cl.key}}</td>
-                <td>{{cl.stateTransition}}</td>
-          </tr>      
-      </tbody>
-  </table>
-
-
+  </table>  
+  <mat-paginator [length]="length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="pageEvent = $event">
+  </mat-paginator>
   
 
