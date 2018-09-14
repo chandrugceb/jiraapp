@@ -9,7 +9,11 @@ import {MatSort,
         PageEvent, 
         MatPaginator,
         MatBottomSheet,
-        MatBottomSheetRef} from '@angular/material';
+        MatBottomSheetRef,
+        MatStep,
+        MatStepper} from '@angular/material';
+
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {Story} from './story';
 import {Subbug} from './subbug';
@@ -25,12 +29,18 @@ import { MetricsService } from './metrics.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit{ 
+  jqlFormGroup: FormGroup;
+  filterFormGroup: FormGroup;
+  errorCount:number=0;
+
   storyReqCount:number=0;
   changelogReqCount:number=0; 
-  isStoryLoaded:boolean=false;  
+  isStoryLoaded:boolean=true;  
   private allKeys:string[]=[];
+  private storedjql:string='';
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild('stepper') stepper:MatStepper;
   title = 'app';
   dataSource;
   private ready:boolean=false;
@@ -52,20 +62,61 @@ export class AppComponent implements OnInit{
   constructor(private bottomSheet: MatBottomSheet, 
               private _storyService:StoryService, 
               private _subbugService:SubbugService,
-              private _metricsService:MetricsService) { 
-    this._storyService.getStory().subscribe(
-      (res)=>{
-       // console.log(res);
-        this.parseStoriesRes(res);
-      },
-      (err)=>{});
+              private _metricsService:MetricsService,
+              private _formBuilder: FormBuilder) { 
+      this.storedjql = localStorage.getItem('jql');
+      //console.log('In Constructor');
+      if(this.storedjql !== null)
+      {
+           this.kickstart();
+      }
       this.dataSource = new MatTableDataSource(this.stories);      
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
 
   }
 
-  ngOnInit() { 
+  kickstart(){
+
+    this.isStoryLoaded=false; 
+    this._storyService.getStory().subscribe(
+      (res)=>{
+       // console.log(res);
+        this.parseStoriesRes(res);
+      },
+      (err)=>{
+        this.errorCount++;
+      });
+  }
+
+  reset(){    
+  this.errorCount=0;
+  this.storyReqCount=0;
+  this.changelogReqCount=0; 
+  this.isStoryLoaded=true;  
+  this.allKeys=[];
+  this.stories=[]; 
+  this.subbugs=[];
+  this.cls=[];
+  this.changelogs=[];
+  this.dataSource = new MatTableDataSource(this.stories);      
+  this.dataSource.sort = this.sort;
+  this.dataSource.paginator = this.paginator;
+  }
+
+  ngOnInit() {
+   // console.log('In ngOnInit');
+    this.jqlFormGroup = this._formBuilder.group({
+      jqlCtrl: ['', Validators.required]
+    });
+    this.filterFormGroup = this._formBuilder.group({
+      filterCtrl: ['', Validators.required]
+    }); 
+    this.jqlFormGroup.get('jqlCtrl').setValue(this.storedjql);
+    if(this.storedjql != null)
+    {
+    this.stepper.selectedIndex = 1;
+    }
   }
   parseStoriesRes(res){
     this.rawStories = res.issues;
@@ -139,7 +190,9 @@ export class AppComponent implements OnInit{
         (resnew)=>{
           this.parseStoriesRes(resnew);
         },
-        (err)=>{});
+        (err)=>{
+          this.errorCount++;
+        });
     }
   }
   getRecord(row:any){
@@ -157,7 +210,9 @@ export class AppComponent implements OnInit{
           this.pushSubbugs();
         }
       },
-      (err)=>{});
+      (err)=>{
+        this.errorCount++;
+      });
     }
   }
 
@@ -231,7 +286,9 @@ export class AppComponent implements OnInit{
         this.changelogReqCount--;
         this.parseChangelogRes(res);
       },
-      (err)=>{});
+      (err)=>{
+        this.errorCount++;
+      });
     }
   }
 
@@ -274,7 +331,9 @@ export class AppComponent implements OnInit{
           this.changelogReqCount--;
           this.parseChangelogRes(resnew);          
         },
-        (err)=>{});
+        (err)=>{
+          this.errorCount++;
+        });
     }else{
     }
   }
@@ -364,4 +423,14 @@ export class AppComponent implements OnInit{
     return 'No State Changes Observed';
   }
 
+  saveToLocal(jql:string){
+    //console.log(jql);
+    let savedjql:string=localStorage.getItem('jql');
+    if(savedjql !== jql)
+    {
+      localStorage.setItem('jql',jql);
+      this.reset();
+      this.kickstart();
+    }
+  }
 }

@@ -11,7 +11,11 @@ import {MatFormFieldModule,
         MatInputModule, 
         MatRippleModule, 
         MatProgressBarModule,
-        MatBottomSheetModule} from '@angular/material';
+        MatBottomSheetModule,
+        MatStepperModule,
+        MatButtonModule,
+        MatIconModule,
+        MatBadgeModule} from '@angular/material';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
@@ -38,7 +42,11 @@ import { MetricsService } from './metrics.service';
     MatPaginatorModule,
     MatProgressBarModule,
     MatTooltipModule,
-    MatBottomSheetModule
+    MatBottomSheetModule,
+    MatStepperModule,
+    MatButtonModule,
+    MatIconModule,
+    MatBadgeModule
   ],
   entryComponents: [
     AppComponent,

@@ -5,7 +5,6 @@ import{HttpClient, HttpResponse, HttpHeaders} from '@angular/common/http';
   providedIn: 'root'
 })
 export class StoryService {
-  private reqbody:any;
   private baseUrl:string;
   private authheaders = new HttpHeaders({'Content-Type':'application/json',
                                         'Accept':'application/json',
@@ -13,11 +12,10 @@ export class StoryService {
 
   constructor(private _http:HttpClient) { 
     this.baseUrl='http://' + window.location.hostname+':8080/api/search';
-    this.reqbody = this.getRequestBodyWithOffset(0);
   }
 
   getStory(){
-    return this._http.post(this.baseUrl,this.reqbody,{headers:this.authheaders});
+    return this._http.post(this.baseUrl,this.getRequestBodyWithOffset(0),{headers:this.authheaders});
   }
 
   getStoryWithOffset(startAt:Number){
@@ -26,7 +24,7 @@ export class StoryService {
 
   getRequestBodyWithOffset(startAt:Number){
     return {
-      "jql": "project = air AND type = story and labels in (B2B)",
+      "jql": localStorage.getItem('jql'),
       "startAt": startAt,
       "maxResults": 100,      
       "fields": [

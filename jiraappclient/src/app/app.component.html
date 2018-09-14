@@ -1,14 +1,51 @@
-<div class="container">
+<div *ngIf="false" class="container">
   <mat-form-field class="inline">
         <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter Stories">
   </mat-form-field>
 </div>
+<div class="container">
+  <mat-horizontal-stepper  #stepper>
+    <mat-step [stepControl]="jqlFormGroup">
+      <ng-template matStepLabel>
+          JQL
+      </ng-template>
+      <form [formGroup]="jqlFormGroup" (ngSubmit)="saveToLocal(jql.value)">
+        <mat-form-field class="inline">
+          <input matInput placeholder="Paste your JQL here and press ENTER" #jql  formControlName="jqlCtrl"  required>
+        </mat-form-field>
+        <div>
+          <button type="submit" mat-button matStepperNext color="primary">Next</button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [stepControl]="filterFormGroup">
+      <ng-template matStepLabel>
+            Filter
+      </ng-template>
+      <form [formGroup]="filterFormGroup">
+        <ng-template matStepLabel></ng-template>
+          <mat-form-field class="inline">
+                <input matInput (keyup)="applyFilter($event.target.value)"  placeholder="Filter Stories">
+          </mat-form-field>
+      </form>
+    </mat-step>
+  </mat-horizontal-stepper>
+</div>
 
-
+<div *ngIf="!(errorCount==0)" align="center">
+    <button     
+      mat-raised-button
+      color="warn" 
+      matBadge="{{errorCount}}" 
+      matBadgePosition="before" 
+      matBadgeColor="error">
+        Internal Server Error Occured, Please ensure the JQL is correct and try again
+    </button>
+  </div>
 
 <mat-progress-bar *ngIf="!isStoryLoaded" mode="indeterminate"></mat-progress-bar>
-<mat-progress-bar *ngIf="!(storyReqCount==0)" mode="buffer"></mat-progress-bar>
-<mat-progress-bar *ngIf="!(changelogReqCount==0)" mode="query"></mat-progress-bar>
+<mat-progress-bar *ngIf="!(storyReqCount==0)" mode="query" color="accent"></mat-progress-bar>
+<mat-progress-bar *ngIf="!(changelogReqCount==0)" mode="query" color="warn"></mat-progress-bar>
 <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">      
     <!-- Key Column -->
     <ng-container matColumnDef="key">
@@ -123,5 +160,6 @@
     [pageSizeOptions]="pageSizeOptions"
     (page)="pageEvent = $event">
   </mat-paginator>
+
   
 
