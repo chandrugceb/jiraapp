@@ -3,7 +3,7 @@
     <!-- Key Column -->
     <ng-container matColumnDef="key">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Key </th>
-      <td mat-cell *matCellDef="let subbug"> {{subbug.key}} </td>
+      <td mat-cell *matCellDef="let subbug"> <a href="https://fulcrumtech.atlassian.net/browse/{{subbug.key}}" target="_blank">{{subbug.key}}</a> </td>
     </ng-container>
   
     <!-- Summary Column -->
