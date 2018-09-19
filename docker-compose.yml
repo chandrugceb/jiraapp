@@ -1,0 +1,22 @@
+version: '3'
+services:
+  server:
+    image: chandrugceb/jiraappserver:2.0
+    restart: on-failure
+    ports:
+      - 8080:8080
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == app
+
+  client:
+    image: chandrugceb/jiraappclient:2.2
+    depends_on:
+      - server
+    ports:
+      - 80:80
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == app
