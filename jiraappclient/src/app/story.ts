@@ -22,4 +22,8 @@ export class Story {
     qatimeline:number;
     reopencount:number;
     statetransition:string;
+    devestimate:number;
+    devactuals:number;
+    qaestimate:number;
+    qaactuals:number;
 }

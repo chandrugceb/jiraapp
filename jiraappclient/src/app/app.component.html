@@ -150,6 +150,30 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> QA Timeline </th>
         <td mat-cell *matCellDef="let story"> {{story.qatimeline}} </td>
     </ng-container>
+
+    <!-- Dev Estimate Column -->
+    <ng-container matColumnDef="devestimate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Estimate (Hrs) </th>
+      <td mat-cell *matCellDef="let story"> {{story.devestimate}} </td>
+    </ng-container>
+
+    <!-- Dev Actuals Column -->
+    <ng-container matColumnDef="devactuals">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Actuals (Hrs) </th>
+      <td mat-cell *matCellDef="let story"> {{story.devactuals}} </td>
+    </ng-container>
+
+    <!-- QA Estimate Column -->
+    <ng-container matColumnDef="qaestimate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> QA Estimate (Hrs) </th>
+      <td mat-cell *matCellDef="let story"> {{story.qaestimate}} </td>
+    </ng-container>
+
+    <!-- QA Actuals Column -->
+    <ng-container matColumnDef="qaactuals">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> QA Actuals (Hrs) </th>
+      <td mat-cell *matCellDef="let story"> {{story.qaactuals}} </td>
+    </ng-container>
   
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky : true">      
     </tr>    

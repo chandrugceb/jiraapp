@@ -32,7 +32,11 @@ export class StoryService {
         "status",
         "assignee",
         "created",
-        "resolutiondate"],
+        "resolutiondate", 
+        "customfield_11400", 
+        "customfield_14100", 
+        "customfield_14226", 
+        "customfield_14227"],
       "fieldsByKeys": false
     };
   }
@@ -52,7 +56,11 @@ export class StoryService {
         "assignee",
         "created",
         "parent",
-        "resolutiondate"],
+        "resolutiondate", 
+        "customfield_11400", 
+        "customfield_14100", 
+        "customfield_14226", 
+        "customfield_14227"],
       "fieldsByKeys": false
     };
   }

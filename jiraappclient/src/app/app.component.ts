@@ -49,7 +49,25 @@ export class AppComponent implements OnInit{
   private cls:Cl[]=[];
   private changelogs:Changelog[]=[];
   private rawStories:any;
-  displayedColumns: string[] = ['key', 'summary', 'status', 'assignee', 'created', 'resolutiondate', 'age','storysubbugs','reopencount','predevanatimeline','devlag','devanatimeline','devtimeline','qalag', 'qatimeline'];
+  displayedColumns: string[] = ['key', 
+                                'summary', 
+                                'status', 
+                                'assignee', 
+                                'created', 
+                                'resolutiondate', 
+                                'age',
+                                'storysubbugs',
+                                'reopencount',
+                                'predevanatimeline',
+                                'devlag',
+                                'devanatimeline',
+                                'devtimeline',
+                                'qalag', 
+                                'qatimeline',
+                                'devestimate',
+                                'devactuals',
+                                'qaestimate',
+                                'qaactuals'];
   pageSizeOptions: number[] = [5, 10, 25, 100];
 
   // MatPaginator Inputs
@@ -81,7 +99,7 @@ export class AppComponent implements OnInit{
     this.isStoryLoaded=false; 
     this._storyService.getStory().subscribe(
       (res)=>{
-       // console.log(res);
+        //console.log(res);
         this.parseStoriesRes(res);
       },
       (err)=>{
@@ -145,6 +163,10 @@ export class AppComponent implements OnInit{
       newStory.qatimeline = 0;
       newStory.reopencount = 0;
       newStory.statetransition = '';
+      newStory.devestimate = story.fields.customfield_11400;
+      newStory.devactuals = story.fields.customfield_14100;
+      newStory.qaestimate = story.fields.customfield_14226;
+      newStory.qaactuals = story.fields.customfield_14227;
       //console.log((new Date()).valueOf());
       this.stories.push(newStory);
     }
@@ -240,6 +262,10 @@ export class AppComponent implements OnInit{
       newSubbug.changelogs = [];
       newSubbug.reopencount = 0;
       newSubbug.statetransition = '';
+      newSubbug.devestimate = subbug.fields.customfield_11400;
+      newSubbug.devactuals = subbug.fields.customfield_14100;
+      newSubbug.qaestimate = subbug.fields.customfield_14226;
+      newSubbug.qaactuals = subbug.fields.customfield_14227;
       this.subbugs.push(newSubbug);
     }
     
