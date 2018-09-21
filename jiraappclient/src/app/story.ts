@@ -26,4 +26,7 @@ export class Story {
     devactuals:number;
     qaestimate:number;
     qaactuals:number;
+    devactualssplit:string;
+    qaactualssplit:string;
+    metricnoncompliancecount:number;
 }

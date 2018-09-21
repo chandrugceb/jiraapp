@@ -14,9 +14,9 @@ import {MatFormFieldModule,
         MatBottomSheetModule,
         MatStepperModule,
         MatButtonModule,
-        MatIconModule,
         MatBadgeModule} from '@angular/material';
 import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatIconModule} from '@angular/material/icon';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
 import { AppComponent } from './app.component';

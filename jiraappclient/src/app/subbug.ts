@@ -22,4 +22,6 @@ export class Subbug {
     devactuals:number;
     qaestimate:number;
     qaactuals:number;
+    devactualssplit:string;
+    qaactualssplit:string;
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Changelog } from './changelog';
 import { Story } from './story';
+import { Subbug } from './subbug';
 
 @Injectable({
   providedIn: 'root'
@@ -298,5 +299,56 @@ export class MetricsService {
       }
     StoryReOpenCount = this.getReopenCount(story.changelogs);
     return StoryReOpenCount + subbugsReOpenCount;
+  }
+
+  hasDevDone(changelogs:Changelog[]){
+    let hasDevDone:boolean=false;
+    for(let changelog of changelogs){
+      if((changelog.toString == 'Dev Complete') || (changelog.toString == 'Ready for QA')){
+        hasDevDone = true;
+      }
+    }
+    return hasDevDone;
+  }
+
+  hasQADone(changelogs:Changelog[]){
+    let hasQADone:boolean=false;
+    for(let changelog of changelogs){
+      if(changelog.fromString == 'In QA'){
+        hasQADone = true;
+      }
+    }
+    return hasQADone;
+  }
+
+  isTicketMetricCompliant(ticket:any){
+    let hasDevDone:boolean=this.hasDevDone(ticket.changelogs);    
+    let hasQADone:boolean=this.hasQADone(ticket.changelogs);
+    let isSubbugMetricComplaint:boolean=true;
+    if(ticket.devactuals == null){
+      if(hasDevDone){
+        isSubbugMetricComplaint=false;
+      }
+    }
+
+    if(ticket.qaactuals == null){
+      if(hasQADone){
+        isSubbugMetricComplaint=false;
+      }
+    }
+    return isSubbugMetricComplaint;
+  }
+
+  getStoryMetricNonComplianceCount(story:Story){
+    let NonComplianceCount:number=0;
+    if(!this.isTicketMetricCompliant(story)){
+      NonComplianceCount++;
+    }
+    for(let subbug of story.storysubbugs){
+      if(!this.isTicketMetricCompliant(subbug)){
+        NonComplianceCount++;
+      }
+    }
+    return NonComplianceCount;
   }
 }

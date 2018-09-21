@@ -17,4 +17,8 @@ th.mat-sort-header-sorted {
 .mat-row:hover {
   background-color: rgb(188, 201, 191);
 }
+
+.mat-tooltip  {
+  white-space: pre-line;
+}
   

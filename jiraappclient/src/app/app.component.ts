@@ -47,7 +47,11 @@ export class AppComponent implements OnInit{
   private stories:Story[]=[]; 
   private subbugs:Subbug[]=[];
   private cls:Cl[]=[];
-  private changelogs:Changelog[]=[];
+  private devactualssplit:Cl[]=[];
+  private qaactualssplit:Cl[]=[];
+  private changelogs:Changelog[]=[];  
+  private devactuallogs:Changelog[]=[];  
+  private qaactuallogs:Changelog[]=[];
   private rawStories:any;
   displayedColumns: string[] = ['key', 
                                 'summary', 
@@ -67,7 +71,8 @@ export class AppComponent implements OnInit{
                                 'devestimate',
                                 'devactuals',
                                 'qaestimate',
-                                'qaactuals'];
+                                'qaactuals',
+                                'metricnoncompliancecount'];
   pageSizeOptions: number[] = [5, 10, 25, 100];
 
   // MatPaginator Inputs
@@ -116,7 +121,11 @@ export class AppComponent implements OnInit{
   this.stories=[]; 
   this.subbugs=[];
   this.cls=[];
+  this.devactualssplit=[];
+  this.qaactualssplit=[];
   this.changelogs=[];
+  this.devactuallogs=[];
+  this.qaactuallogs=[];
   this.dataSource = new MatTableDataSource(this.stories);      
   this.dataSource.sort = this.sort;
   this.dataSource.paginator = this.paginator;
@@ -167,6 +176,7 @@ export class AppComponent implements OnInit{
       newStory.devactuals = story.fields.customfield_14100;
       newStory.qaestimate = story.fields.customfield_14226;
       newStory.qaactuals = story.fields.customfield_14227;
+      newStory.metricnoncompliancecount = 0;
       //console.log((new Date()).valueOf());
       this.stories.push(newStory);
     }
@@ -319,6 +329,7 @@ export class AppComponent implements OnInit{
   }
 
   parseChangelogRes(res){
+    //console.log(res);
     let rawChangelogs = res.values;
     this.handleMoreChangeLogs(res);
     for(let value of rawChangelogs){
@@ -327,11 +338,32 @@ export class AppComponent implements OnInit{
         if(item.field=="status"){
           let newChangelog = new Changelog();
           newChangelog.key = this.getKeyFromUrl(res.self);
+          newChangelog.author = value.author.displayName;
           newChangelog.created = new Date(value.created);
           newChangelog.field = item.field;
           newChangelog.fromString = item.fromString;
           newChangelog.toString = item.toString;
           this.changelogs.push(newChangelog);
+        }
+        else if(item.field=="Dev Actuals (Hrs)"){
+          let newChangelog = new Changelog();
+          newChangelog.key = this.getKeyFromUrl(res.self);
+          newChangelog.author = value.author.displayName;
+          newChangelog.created = new Date(value.created);
+          newChangelog.field = item.field;
+          newChangelog.fromString = item.fromString;
+          newChangelog.toString = item.toString;
+          this.devactuallogs.push(newChangelog);
+        }
+        else if(item.field=="QA Actuals (Hrs)"){
+          let newChangelog = new Changelog();
+          newChangelog.key = this.getKeyFromUrl(res.self);
+          newChangelog.author = value.author.displayName;
+          newChangelog.created = new Date(value.created);
+          newChangelog.field = item.field;
+          newChangelog.fromString = item.fromString;
+          newChangelog.toString = item.toString;
+          this.qaactuallogs.push(newChangelog);
         }
       }
     }
@@ -366,6 +398,8 @@ export class AppComponent implements OnInit{
   pushChangeLogs(){
     let newStories:Story[]=[];    
     this.generateCl();
+    this.generatedevactualsplit();
+    this.generateqaactualsplit();
     for(let story of this.stories){
       story.storysubbugs=[];
       for(let changelog of this.changelogs){
@@ -391,6 +425,8 @@ export class AppComponent implements OnInit{
           subbug.qalag = this.round(this._metricsService.getQALag(subbug.changelogs),2);
           subbug.reopencount = this._metricsService.getReopenCount(subbug.changelogs);
           subbug.statetransition = this.getStateTransitionSummary(subbug.key);
+          subbug.devactualssplit = this.getDevActualsSplitSummary(subbug.key);
+          subbug.qaactualssplit = this.getQAActualsSplitSummary(subbug.key);
           story.storysubbugs.push(subbug);
           if(subbug.status != 'Done' && subbug.status != 'Closed' ){
             story.storyactivesubbugcount++;
@@ -405,6 +441,9 @@ export class AppComponent implements OnInit{
       story.qalag = this.round(this._metricsService.getOverallQALag(story),2);
       story.reopencount = this._metricsService.getOverallReopenCount(story);
       story.statetransition = this.getStateTransitionSummary(story.key);
+      story.devactualssplit = this.getDevActualsSplitSummary(story.key);
+      story.qaactualssplit = this.getQAActualsSplitSummary(story.key);
+      story.metricnoncompliancecount = this._metricsService.getStoryMetricNonComplianceCount(story);
       story.issubbugloaded=true;
       newStories.push(story);
     }
@@ -458,5 +497,118 @@ export class AppComponent implements OnInit{
       this.reset();
       this.kickstart();
     }
+  }
+
+  generatedevactualsplit(){
+    let key:string='';
+    let stateTransition:string='';
+    for(let allKey of this.allKeys){
+      key = allKey;
+      stateTransition = '';      
+      let devmap = new Map();
+      for(let changelog of this.devactuallogs){
+        if(allKey == changelog.key){
+          if(devmap.has(changelog.author)){
+            let oldHrs = devmap.get(changelog.author);
+            devmap.set(changelog.author,(
+                                          oldHrs + 
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                                        )
+                      );
+          } else {
+            devmap.set(changelog.author,
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                      );
+          }
+        }
+      }
+      for(let dev of Array.from(devmap.keys())){
+        if(stateTransition.length>0){
+          stateTransition = stateTransition + ' | ' + dev + ' (' + devmap.get(dev) + 'Hrs)';
+        } else {
+          stateTransition = dev + ' (' + devmap.get(dev) + 'Hrs)';
+        }
+      }
+      //console.log(stateTransition);
+      let cl = new Cl();
+      cl.key=key;
+      cl.stateTransition=stateTransition;
+      this.devactualssplit.push(cl);
+    }
+  }
+
+  getDevActualsSplitSummary(key:string){
+    for(let cl of this.devactualssplit){
+      if(cl.key==key){
+        if(cl.stateTransition.length > 0)
+        {
+          return cl.stateTransition;
+        }
+        return 'No Dev Effort';
+      }
+    }
+    return 'No Dev Effort';
+  }
+
+  generateqaactualsplit(){
+    let key:string='';
+    let stateTransition:string='';
+    for(let allKey of this.allKeys){
+      key = allKey;
+      stateTransition = '';      
+      let qamap = new Map();
+      for(let changelog of this.qaactuallogs){
+        if(allKey == changelog.key){
+          if(qamap.has(changelog.author)){
+            let oldHrs = qamap.get(changelog.author);
+            qamap.set(changelog.author,(
+                                          oldHrs + 
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                                        )
+                      );
+          } else {
+            qamap.set(changelog.author,
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                      );
+          }
+        }
+      }
+      for(let qa of Array.from(qamap.keys())){
+        if(stateTransition.length>0){
+          stateTransition = stateTransition + ' | ' + qa + ' (' + qamap.get(qa) + 'Hrs)';
+        } else {
+          stateTransition = qa + ' (' + qamap.get(qa) + 'Hrs)';
+        }
+      }
+      let cl = new Cl();
+      cl.key=key;
+      cl.stateTransition=stateTransition;
+      this.qaactualssplit.push(cl);
+    }
+  }
+
+  getQAActualsSplitSummary(key:string){
+    for(let cl of this.qaactualssplit){
+      if(cl.key==key){
+        if(cl.stateTransition.length > 0)
+        {
+          return cl.stateTransition;
+        }
+        return 'No QA Effort';
+      }
+    }
+    return 'No QA Effort';
   }
 }
