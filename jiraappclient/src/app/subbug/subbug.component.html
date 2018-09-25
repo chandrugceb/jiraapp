@@ -96,6 +96,20 @@
         <td mat-cell *matCellDef="let subbug"> {{subbug.qatimeline}} </td>
     </ng-container>
 
+    <!-- BSA Estimate Column -->
+    <ng-container matColumnDef="bsaestimate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> BSA Estimate (Hrs) </th>
+      <td mat-cell *matCellDef="let subbug"> {{subbug.bsaestimate}} </td>
+    </ng-container>
+
+    <!-- BSA Actuals Column -->
+    <ng-container matColumnDef="bsaactuals">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> BSA Actuals (Hrs) </th>
+      <td mat-cell *matCellDef="let subbug" 
+                    matTooltip="{{subbug.bsaactualssplit}}" 
+                    [matTooltipShowDelay]="500"> {{subbug.bsaactuals}} </td>
+    </ng-container>
+
     <!-- Dev Estimate Column -->
     <ng-container matColumnDef="devestimate">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Dev Estimate (Hrs) </th>

@@ -21,4 +21,11 @@ th.mat-sort-header-sorted {
 .mat-tooltip  {
   white-space: pre-line;
 }
+
+.mat-fab {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+}
+
   

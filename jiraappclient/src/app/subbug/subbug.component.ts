@@ -33,6 +33,8 @@ export class SubbugComponent implements OnInit {
                                 'devtimeline',
                                 'qalag', 
                                 'qatimeline',
+                                'bsaestimate',
+                                'bsaactuals',
                                 'devestimate',
                                 'devactuals',
                                 'qaestimate',

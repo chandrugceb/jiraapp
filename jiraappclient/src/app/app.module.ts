@@ -22,11 +22,13 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import { AppComponent } from './app.component';
 import { SubbugComponent } from './subbug/subbug.component';
 import { MetricsService } from './metrics.service';
+import { ReportComponent } from './report/report.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SubbugComponent
+    SubbugComponent,
+    ReportComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +52,8 @@ import { MetricsService } from './metrics.service';
   ],
   entryComponents: [
     AppComponent,
-    SubbugComponent
+    SubbugComponent,
+    ReportComponent
   ],
   providers: [StoryService, SubbugService, MetricsService],
   bootstrap: [AppComponent]

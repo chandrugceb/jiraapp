@@ -22,10 +22,13 @@ export class Story {
     qatimeline:number;
     reopencount:number;
     statetransition:string;
+    bsaestimate:number;
+    bsaactuals:number;
     devestimate:number;
     devactuals:number;
     qaestimate:number;
     qaactuals:number;
+    bsaactualssplit:string;
     devactualssplit:string;
     qaactualssplit:string;
     metricnoncompliancecount:number;

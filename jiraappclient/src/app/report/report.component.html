@@ -1,0 +1,51 @@
+<h2 class="title">Summary of Efforts</h2>
+<div class="row">
+  <div class="column">
+    <table class="table table-striped">
+      <thead class="thead-light">
+          <tr>
+              <th scope="col">BSA</th>
+              <th scope="col">Hrs</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr *ngFor="let bsa of bsaefforts" >
+                  <td>{{bsa.name}}</td>
+                  <td>{{bsa.effort}}</td>
+            </tr>      
+        </tbody>
+    </table>
+  </div>
+  <div class="column">
+      <table class="table table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">DEV</th>
+                <th scope="col">Hrs</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let dev of devefforts" >
+                    <td>{{dev.name}}</td>
+                    <td>{{dev.effort}}</td>
+              </tr>      
+          </tbody>
+      </table>
+    </div>
+    <div class="column">
+        <table class="table table-striped">
+          <thead class="thead-light">
+              <tr>
+                  <th scope="col">QA</th>
+                  <th scope="col">Hrs</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr *ngFor="let qa of qaefforts" >
+                      <td>{{qa.name}}</td>
+                      <td>{{qa.effort}}</td>
+                </tr>      
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -17,7 +17,9 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 import {Story} from './story';
 import {Subbug} from './subbug';
+import {Effort} from './effort';
 import { SubbugComponent } from './subbug/subbug.component';
+import {ReportComponent} from './report/report.component';
 import { SubbugService } from './subbug.service';
 import { Changelog } from './changelog';
 import {Cl} from './cl';
@@ -46,12 +48,17 @@ export class AppComponent implements OnInit{
   private ready:boolean=false;
   private stories:Story[]=[]; 
   private subbugs:Subbug[]=[];
-  private cls:Cl[]=[];
+  private cls:Cl[]=[];  
+  private bsaactualssplit:Cl[]=[];
   private devactualssplit:Cl[]=[];
   private qaactualssplit:Cl[]=[];
-  private changelogs:Changelog[]=[];  
+  private changelogs:Changelog[]=[];    
+  private bsaactuallogs:Changelog[]=[]; 
   private devactuallogs:Changelog[]=[];  
   private qaactuallogs:Changelog[]=[];
+  private bsaefforts:Effort[]=[];
+  private devefforts:Effort[]=[];
+  private qaefforts:Effort[]=[]
   private rawStories:any;
   displayedColumns: string[] = ['key', 
                                 'summary', 
@@ -68,6 +75,8 @@ export class AppComponent implements OnInit{
                                 'devtimeline',
                                 'qalag', 
                                 'qatimeline',
+                                'bsaestimate',
+                                'bsaactuals',
                                 'devestimate',
                                 'devactuals',
                                 'qaestimate',
@@ -121,11 +130,16 @@ export class AppComponent implements OnInit{
   this.stories=[]; 
   this.subbugs=[];
   this.cls=[];
+  this.bsaactualssplit=[];
   this.devactualssplit=[];
   this.qaactualssplit=[];
   this.changelogs=[];
+  this.bsaactuallogs=[];
   this.devactuallogs=[];
   this.qaactuallogs=[];
+  this.bsaefforts=[];
+  this.devefforts=[];
+  this.qaefforts=[];
   this.dataSource = new MatTableDataSource(this.stories);      
   this.dataSource.sort = this.sort;
   this.dataSource.paginator = this.paginator;
@@ -171,7 +185,9 @@ export class AppComponent implements OnInit{
       newStory.qalag = 0;
       newStory.qatimeline = 0;
       newStory.reopencount = 0;
-      newStory.statetransition = '';
+      newStory.statetransition = '';      
+      newStory.bsaestimate = story.fields.customfield_14229;
+      newStory.bsaactuals = story.fields.customfield_14230;
       newStory.devestimate = story.fields.customfield_11400;
       newStory.devactuals = story.fields.customfield_14100;
       newStory.qaestimate = story.fields.customfield_14226;
@@ -272,6 +288,8 @@ export class AppComponent implements OnInit{
       newSubbug.changelogs = [];
       newSubbug.reopencount = 0;
       newSubbug.statetransition = '';
+      newSubbug.bsaestimate = subbug.fields.customfield_14229;
+      newSubbug.bsaactuals = subbug.fields.customfield_14230;
       newSubbug.devestimate = subbug.fields.customfield_11400;
       newSubbug.devactuals = subbug.fields.customfield_14100;
       newSubbug.qaestimate = subbug.fields.customfield_14226;
@@ -308,6 +326,12 @@ export class AppComponent implements OnInit{
       data:{subbugs:{data:this.subbugs.filter(e => e.parent == parentKey), parentKey:parentKey}}
     });
   }
+
+  openReportBottomSheet(): void {
+     this.bottomSheet.open(ReportComponent, {
+       data:{bsaefforts:this.bsaefforts, devefforts:this.devefforts, qaefforts:this.qaefforts}
+     });
+   }
 
   loadChangelogs(){
     for(let story of this.stories){
@@ -365,6 +389,16 @@ export class AppComponent implements OnInit{
           newChangelog.toString = item.toString;
           this.qaactuallogs.push(newChangelog);
         }
+        else if(item.field=="BSA Actuals (Hrs)"){
+          let newChangelog = new Changelog();
+          newChangelog.key = this.getKeyFromUrl(res.self);
+          newChangelog.author = value.author.displayName;
+          newChangelog.created = new Date(value.created);
+          newChangelog.field = item.field;
+          newChangelog.fromString = item.fromString;
+          newChangelog.toString = item.toString;
+          this.bsaactuallogs.push(newChangelog);
+        }
       }
     }
     if(this.changelogReqCount==0){
@@ -397,9 +431,11 @@ export class AppComponent implements OnInit{
   }
   pushChangeLogs(){
     let newStories:Story[]=[];    
-    this.generateCl();
+    this.generateCl();    
+    this.generatebsaactualsplit();
     this.generatedevactualsplit();
     this.generateqaactualsplit();
+    this.generateeffortactualsplit();
     for(let story of this.stories){
       story.storysubbugs=[];
       for(let changelog of this.changelogs){
@@ -425,6 +461,7 @@ export class AppComponent implements OnInit{
           subbug.qalag = this.round(this._metricsService.getQALag(subbug.changelogs),2);
           subbug.reopencount = this._metricsService.getReopenCount(subbug.changelogs);
           subbug.statetransition = this.getStateTransitionSummary(subbug.key);
+          subbug.bsaactualssplit = this.getBSAActualsSplitSummary(subbug.key);
           subbug.devactualssplit = this.getDevActualsSplitSummary(subbug.key);
           subbug.qaactualssplit = this.getQAActualsSplitSummary(subbug.key);
           story.storysubbugs.push(subbug);
@@ -441,6 +478,7 @@ export class AppComponent implements OnInit{
       story.qalag = this.round(this._metricsService.getOverallQALag(story),2);
       story.reopencount = this._metricsService.getOverallReopenCount(story);
       story.statetransition = this.getStateTransitionSummary(story.key);
+      story.bsaactualssplit = this.getBSAActualsSplitSummary(story.key);
       story.devactualssplit = this.getDevActualsSplitSummary(story.key);
       story.qaactualssplit = this.getQAActualsSplitSummary(story.key);
       story.metricnoncompliancecount = this._metricsService.getStoryMetricNonComplianceCount(story);
@@ -497,6 +535,63 @@ export class AppComponent implements OnInit{
       this.reset();
       this.kickstart();
     }
+  }
+
+generatebsaactualsplit(){
+    let key:string='';
+    let stateTransition:string='';
+    for(let allKey of this.allKeys){
+      key = allKey;
+      stateTransition = '';      
+      let bsamap = new Map();
+      for(let changelog of this.bsaactuallogs){
+        if(allKey == changelog.key){
+          if(bsamap.has(changelog.author)){
+            let oldHrs = bsamap.get(changelog.author);
+            bsamap.set(changelog.author,(
+                                          oldHrs + 
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                                        )
+                      );
+          } else {
+            bsamap.set(changelog.author,
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                      );
+          }
+        }
+      }
+      for(let bsa of Array.from(bsamap.keys())){
+        if(stateTransition.length>0){
+          stateTransition = stateTransition + ' | ' + bsa + ' (' + bsamap.get(bsa) + 'Hrs)';
+        } else {
+          stateTransition = bsa + ' (' + bsamap.get(bsa) + 'Hrs)';
+        }
+      }
+      //console.log(stateTransition);
+      let cl = new Cl();
+      cl.key=key;
+      cl.stateTransition=stateTransition;
+      this.bsaactualssplit.push(cl);
+    }
+  }
+
+  getBSAActualsSplitSummary(key:string){
+    for(let cl of this.bsaactualssplit){
+      if(cl.key==key){
+        if(cl.stateTransition.length > 0)
+        {
+          return cl.stateTransition;
+        }
+        return 'No Dev Effort';
+      }
+    }
+    return 'No Dev Effort';
   }
 
   generatedevactualsplit(){
@@ -611,4 +706,89 @@ export class AppComponent implements OnInit{
     }
     return 'No QA Effort';
   }
+
+  generateeffortactualsplit(){      
+      let bsamap = new Map();
+      for(let changelog of this.bsaactuallogs){
+          if(bsamap.has(changelog.author)){
+            let oldHrs = bsamap.get(changelog.author);
+            bsamap.set(changelog.author,(
+                                          oldHrs + 
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                                        )
+                      );
+          } else {
+            bsamap.set(changelog.author,
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                      );
+          }
+      }
+      let devmap = new Map();
+      for(let changelog of this.devactuallogs){
+          if(devmap.has(changelog.author)){
+            let oldHrs = devmap.get(changelog.author);
+            devmap.set(changelog.author,(
+                                          oldHrs + 
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                                        )
+                      );
+          } else {
+            devmap.set(changelog.author,
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                      );
+          }
+      }
+      let qamap = new Map();
+      for(let changelog of this.qaactuallogs){
+          if(qamap.has(changelog.author)){
+            let oldHrs = qamap.get(changelog.author);
+            qamap.set(changelog.author,(
+                                          oldHrs + 
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                                        )
+                      );
+          } else {
+            qamap.set(changelog.author,
+                                          (
+                                              parseFloat(changelog.toString) - 
+                                              (parseFloat(changelog.fromString) || 0)
+                                          ) 
+                      );
+          }
+      }
+
+      for(let bsaName of Array.from(bsamap.keys())){
+        var bsaEffort = new Effort();
+        bsaEffort.name = bsaName;
+        bsaEffort.effort = this.round(bsamap.get(bsaName),2);
+        this.bsaefforts.push(bsaEffort);
+      }
+      for(let devName of Array.from(devmap.keys())){
+        var devEffort = new Effort();
+        devEffort.name = devName;
+        devEffort.effort = this.round(devmap.get(devName),2);
+        this.devefforts.push(devEffort);
+      }
+      for(let qaName of Array.from(qamap.keys())){
+        var qaEffort = new Effort();
+        qaEffort.name = qaName;
+        qaEffort.effort = this.round(qamap.get(qaName),2);
+        this.qaefforts.push(qaEffort);
+      }
+    }
 }
