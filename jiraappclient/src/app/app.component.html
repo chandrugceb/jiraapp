@@ -222,5 +222,21 @@
     (page)="pageEvent = $event">
   </mat-paginator>
 
-  <button mat-fab color="primary" (click)="openReportBottomSheet()"><mat-icon>group</mat-icon></button>
+  <button mat-fab 
+          class="report" 
+          color="primary" 
+          (click)="openReportBottomSheet()"
+          [disabled]="!contentloaded">
+            <mat-icon>
+              group
+            </mat-icon>
+          </button>
+  <button mat-fab 
+          class="export" 
+          (click)="exportToCSV()"
+          [disabled]="!contentloaded">
+            <mat-icon>
+              cloud_download
+            </mat-icon>
+          </button>
 

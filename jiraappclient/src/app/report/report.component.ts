@@ -18,11 +18,17 @@ export class ReportComponent implements OnInit {
   private bsaefforts:any;
   private devefforts:any;
   private qaefforts:any;
+  private bsahrs:number=0;
+  private devhrs:number=0;
+  private qahrs:number=0;
 
   constructor(private bottomSheetRef: MatBottomSheetRef<ReportComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public data: any) {     
     this.bsaefforts = data.bsaefforts;
     this.devefforts = data.devefforts;
     this.qaefforts = data.qaefforts;
+    this.bsaefforts.map((bsa)=>this.bsahrs = this.bsahrs + bsa.effort);
+    this.devefforts.map((dev)=>this.devhrs = this.devhrs + dev.effort);
+    this.qaefforts.map((qa)=>this.qahrs = this.qahrs + qa.effort);
   }
 
   ngOnInit() {

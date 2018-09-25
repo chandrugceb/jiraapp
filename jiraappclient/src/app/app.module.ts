@@ -23,6 +23,7 @@ import { AppComponent } from './app.component';
 import { SubbugComponent } from './subbug/subbug.component';
 import { MetricsService } from './metrics.service';
 import { ReportComponent } from './report/report.component';
+import { ExportService } from './export.service';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,7 @@ import { ReportComponent } from './report/report.component';
     SubbugComponent,
     ReportComponent
   ],
-  providers: [StoryService, SubbugService, MetricsService],
+  providers: [StoryService, SubbugService, MetricsService, ExportService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

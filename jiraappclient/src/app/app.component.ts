@@ -24,6 +24,7 @@ import { SubbugService } from './subbug.service';
 import { Changelog } from './changelog';
 import {Cl} from './cl';
 import { MetricsService } from './metrics.service';
+import { ExportService } from './export.service';
 
 @Component({
   selector: 'app-root',
@@ -59,6 +60,7 @@ export class AppComponent implements OnInit{
   private bsaefforts:Effort[]=[];
   private devefforts:Effort[]=[];
   private qaefforts:Effort[]=[]
+  private contentloaded:boolean=false;
   private rawStories:any;
   displayedColumns: string[] = ['key', 
                                 'summary', 
@@ -95,7 +97,8 @@ export class AppComponent implements OnInit{
               private _storyService:StoryService, 
               private _subbugService:SubbugService,
               private _metricsService:MetricsService,
-              private _formBuilder: FormBuilder) { 
+              private _formBuilder: FormBuilder,
+              private _exportService:ExportService) { 
       this.storedjql = localStorage.getItem('jql');
       //console.log('In Constructor');
       if(this.storedjql !== null)
@@ -140,6 +143,7 @@ export class AppComponent implements OnInit{
   this.bsaefforts=[];
   this.devefforts=[];
   this.qaefforts=[];
+  this.contentloaded=false;
   this.dataSource = new MatTableDataSource(this.stories);      
   this.dataSource.sort = this.sort;
   this.dataSource.paginator = this.paginator;
@@ -464,6 +468,9 @@ export class AppComponent implements OnInit{
           subbug.bsaactualssplit = this.getBSAActualsSplitSummary(subbug.key);
           subbug.devactualssplit = this.getDevActualsSplitSummary(subbug.key);
           subbug.qaactualssplit = this.getQAActualsSplitSummary(subbug.key);
+          story.bsaactuals = ((story.bsaactuals || 0) + (subbug.bsaactuals || 0))==0? null:((story.bsaactuals || 0) + (subbug.bsaactuals || 0));
+          story.devactuals = ((story.devactuals || 0) + (subbug.devactuals || 0))==0? null:((story.devactuals || 0) + (subbug.devactuals || 0));
+          story.qaactuals = ((story.qaactuals || 0) + (subbug.qaactuals || 0))==0? null:((story.qaactuals || 0) + (subbug.qaactuals || 0));
           story.storysubbugs.push(subbug);
           if(subbug.status != 'Done' && subbug.status != 'Closed' ){
             story.storyactivesubbugcount++;
@@ -588,10 +595,10 @@ generatebsaactualsplit(){
         {
           return cl.stateTransition;
         }
-        return 'No Dev Effort';
+        return 'No BSA Effort';
       }
     }
-    return 'No Dev Effort';
+    return 'No BSA Effort';
   }
 
   generatedevactualsplit(){
@@ -790,5 +797,43 @@ generatebsaactualsplit(){
         qaEffort.effort = this.round(qamap.get(qaName),2);
         this.qaefforts.push(qaEffort);
       }
+      this.contentloaded=true;
+    }
+
+    exportToCSV(){
+      let data:any[]=[];
+      for(let story of this.stories){
+        let newStory:any;
+        newStory = new Story();
+        newStory.key = story.key;
+        newStory.summary = story.summary;
+        newStory.status = story.status;
+        newStory.assignee = story.assignee;
+        newStory.created = story.created;
+        newStory.resolutiondate = story.resolutiondate;
+        newStory.age = story.age;        
+        newStory.totalSubbugs = story.storyactivesubbugcount;
+        newStory.activeSubbugs = story.storysubbugs.length;
+        newStory.reopencount = story.reopencount;
+        newStory.predevanatimeline = story.predevanatimeline;
+        newStory.devlag = story.devlag;
+        newStory.devanatimeline = story.devanatimeline;
+        newStory.devtimeline = story.devtimeline;
+        newStory.qalag = story.qalag;    
+        newStory.qatimeline = story.qatimeline;
+        newStory.statetransition = story.statetransition;
+        newStory.bsaestimate = story.bsaestimate;
+        newStory.bsaactuals = story.bsaactuals;
+        newStory.devestimate = story.devestimate;
+        newStory.devactuals = story.devactuals;
+        newStory.qaestimate = story.qaestimate;
+        newStory.qaactuals = story.qaactuals;
+        newStory.bsaactualssplit = story.bsaactualssplit;
+        newStory.devactualssplit = story.devactualssplit;
+        newStory.qaactualssplit = story.qaactualssplit;
+        newStory.metricnoncompliancecount = story.metricnoncompliancecount;
+        data.push(newStory);
+      }
+      this._exportService.exportToCSV(data);
     }
 }

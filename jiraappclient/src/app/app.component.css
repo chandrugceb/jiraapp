@@ -22,10 +22,17 @@ th.mat-sort-header-sorted {
   white-space: pre-line;
 }
 
-.mat-fab {
+.report {
   position: fixed;
   bottom: 1rem;
   left: 1rem;
+}
+
+.export {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: rgb(188, 201, 191);
 }
 
   

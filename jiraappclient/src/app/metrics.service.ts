@@ -325,13 +325,13 @@ export class MetricsService {
     let hasDevDone:boolean=this.hasDevDone(ticket.changelogs);    
     let hasQADone:boolean=this.hasQADone(ticket.changelogs);
     let isSubbugMetricComplaint:boolean=true;
-    if(ticket.devactuals == null){
+    if(ticket.devactuals == null || ticket.devactuals == 0){
       if(hasDevDone){
         isSubbugMetricComplaint=false;
       }
     }
 
-    if(ticket.qaactuals == null){
+    if(ticket.qaactuals == null || ticket.qaactuals == 0){
       if(hasQADone){
         isSubbugMetricComplaint=false;
       }
