@@ -20,6 +20,7 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
+              "src/fulcrum.ico",
               "src/assets"
             ],
             "styles": [
@@ -76,7 +77,8 @@
             ],
             "scripts": [],
             "assets": [
-              "src/favicon.ico",
+              "src/favicon.ico",              
+              "src/fulcrum.ico",
               "src/assets"
             ]
           }
