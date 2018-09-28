@@ -16,7 +16,7 @@ import {MAT_BOTTOM_SHEET_DATA} from '@angular/material';
 })
 export class SubbugComponent implements OnInit {
   private subbugs:Subbug[]=[];
-  private parentKey:string;  
+  public parentKey:string;  
   @ViewChild(MatSort) sort: MatSort;
   dataSource;
   displayedColumns: string[] = ['key', 

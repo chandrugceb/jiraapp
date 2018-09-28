@@ -15,12 +15,12 @@ import {MAT_BOTTOM_SHEET_DATA} from '@angular/material';
   styleUrls: ['./report.component.css']
 })
 export class ReportComponent implements OnInit {
-  private bsaefforts:any;
-  private devefforts:any;
-  private qaefforts:any;
-  private bsahrs:number=0;
-  private devhrs:number=0;
-  private qahrs:number=0;
+  public bsaefforts:any;
+  public devefforts:any;
+  public qaefforts:any;
+  public bsahrs:number=0;
+  public devhrs:number=0;
+  public qahrs:number=0;
 
   constructor(private bottomSheetRef: MatBottomSheetRef<ReportComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public data: any) {     
     this.bsaefforts = data.bsaefforts;

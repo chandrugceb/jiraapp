@@ -60,7 +60,7 @@ export class AppComponent implements OnInit{
   private bsaefforts:Effort[]=[];
   private devefforts:Effort[]=[];
   private qaefforts:Effort[]=[]
-  private contentloaded:boolean=false;
+  public contentloaded:boolean=false;
   private rawStories:any;
   displayedColumns: string[] = ['key', 
                                 'summary', 
